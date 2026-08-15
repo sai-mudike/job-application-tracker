@@ -10,10 +10,16 @@ func main() {
 
 	server := gin.Default()
 	migrations.InitDB()
-
+	// Companies---------------
 	server.GET("/companies", handlers.GetCompanies)
 	server.GET("/companies/:id", handlers.CompanyByID)
 	server.POST("/companies", handlers.CreateCompany)
+	server.PUT("companies/:id", handlers.UpdateCompany)
+	server.DELETE("companies/:id", handlers.DeleteCompany)
+	// Jons--------------------
+
+	server.GET("/jobs")
+	server.POST("/jobs")
 
 	server.Run(":8080")
 }
