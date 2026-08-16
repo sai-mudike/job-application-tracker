@@ -34,13 +34,13 @@ func CreateUser(user *models.User) error {
 
 func VerifyUser(user models.User) error {
 	query := `
-	SELECT hashed_pass FROM users WHERE user_name=$1;
+	SELECT id,hashed_pass FROM users WHERE user_name=$1;
 	`
 
 	row := database.DB.QueryRow(query, user.UserName)
 	var hashed_pass string
 
-	err := row.Scan(&hashed_pass)
+	err := row.Scan(&user.Id, &hashed_pass)
 	if err != nil {
 		fmt.Println(err)
 		return errors.New("Invalid credentials Please enter valid email id")
