@@ -27,10 +27,25 @@ func Init() {
 }
 
 func createTables() {
+	createUsersTable := `
+CREATE TABLE IF NOT EXISTS users(
+id SERIAL PRIMARY KEY,
+user_name VARCHAR(255) NOT NULL UNIQUE,
+hashed_pass TEXT NOT NULL,
+created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+`
+	_, err := DB.Exec(createUsersTable)
+
+	if err != nil {
+		panic("Unable to create users table")
+	}
+
 	createApplicationsTable := `
 CREATE TABLE IF NOT EXISTS applications(
 id SERIAL PRIMARY KEY,
-user_id INTEGER NOT NULL,
+user_id INTEGER REFERENCES users(id) ON DELETE CASCADE NOT NULL ,
 company_name VARCHAR(255) NOT NULL,
 job_title VARCHAR(255) NOT NULL,
 job_url TEXT NOT NULL,
@@ -46,7 +61,7 @@ updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
 CHECK(salary_min IS NULL OR salary_max IS NULL OR salary_max >= salary_min)
 );
 `
-	_, err := DB.Exec(createApplicationsTable)
+	_, err = DB.Exec(createApplicationsTable)
 
 	if err != nil {
 		panic("could not create the applications table")

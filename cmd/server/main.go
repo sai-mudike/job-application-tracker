@@ -16,5 +16,8 @@ func main() {
 	server.PUT("/applications/:id", handlers.UpdateApplication)
 	server.DELETE("applications/:id", handlers.DeleteApplication)
 
+	server.POST("/auth/register", handlers.RegisterUser)
+	server.POST("/auth/login", handlers.UserLogin)
+
 	server.Run(":8080")
 }
