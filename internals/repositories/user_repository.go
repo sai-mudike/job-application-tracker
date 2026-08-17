@@ -32,7 +32,7 @@ func CreateUser(user *models.User) error {
 	return err
 }
 
-func VerifyUser(user models.User) error {
+func VerifyUser(user *models.User) error {
 	query := `
 	SELECT id,hashed_pass FROM users WHERE user_name=$1;
 	`

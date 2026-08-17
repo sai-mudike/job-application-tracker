@@ -8,13 +8,28 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sai-mudike/job-application-tracker/internals/models"
 	"github.com/sai-mudike/job-application-tracker/internals/repositories"
+	"github.com/sai-mudike/job-application-tracker/internals/services"
 )
 
 func CreateApplication(context *gin.Context) {
 
+	token := context.Request.Header.Get("Authorization")
+
+	if token == "" {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized access"})
+		return
+	}
+
+	userID, err := services.VerifyToken(token)
+
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
+		return
+	}
+
 	var application models.Application
 
-	err := context.ShouldBindJSON(&application)
+	err = context.ShouldBindJSON(&application)
 
 	if err != nil {
 		fmt.Println(err)
@@ -22,7 +37,7 @@ func CreateApplication(context *gin.Context) {
 		return
 	}
 
-	application.User_id = 1
+	application.User_id = userID
 
 	err = repositories.CreateApplication(&application)
 	if err != nil {
