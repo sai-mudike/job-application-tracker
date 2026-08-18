@@ -1,7 +1,10 @@
 package repositories
 
 import (
+	"errors"
+
 	"github.com/sai-mudike/job-application-tracker/internals/database"
+	appErrors "github.com/sai-mudike/job-application-tracker/internals/errors"
 	"github.com/sai-mudike/job-application-tracker/internals/models"
 )
 
@@ -21,17 +24,22 @@ RETURNING id;
 	row := smt.QueryRow(application.User_id, application.Company_name, application.Job_title, application.Job_url, application.Location, application.Employment_type, application.Salary_min, application.Salary_max, application.Status, application.Applied_at, application.Notes)
 
 	err = row.Scan(&application.Id)
+	if errors.As(err, &pqErr) {
+		if pqErr.Code == "23505" {
+			return appErrors.ErrDuplicateApplication
+		}
+	}
 	return err
 }
 
-func GetAllApplications() ([]models.Application, error) {
+func GetAllApplications(user_id int64) ([]models.Application, error) {
 	query := `
-	SELECT * FROM applications;
+	SELECT * FROM applications WHERE applications.user_id=$1;
 	`
-	rows, err := database.DB.Query(query)
+	rows, err := database.DB.Query(query, user_id)
 
 	if err != nil {
-		return nil, err
+		return nil, appErrors.ErrApplicationNotFound
 	}
 
 	defer rows.Close()
@@ -55,18 +63,18 @@ func GetAllApplications() ([]models.Application, error) {
 
 }
 
-func GetApplicationByID(id int64) (models.Application, error) {
+func GetApplicationByID(applicationID, userID int64) (models.Application, error) {
 	query := `
  SELECT * FROM applications
- WHERE id =$1;
+ WHERE id =$1 AND user_id =$2;
  `
-	row := database.DB.QueryRow(query, id)
+	row := database.DB.QueryRow(query, applicationID, userID)
 
 	var singleApplication models.Application
 	err := row.Scan(&singleApplication.Id, &singleApplication.User_id, &singleApplication.Company_name, &singleApplication.Job_title, &singleApplication.Job_url, &singleApplication.Location, &singleApplication.Employment_type, &singleApplication.Salary_min, &singleApplication.Salary_max, &singleApplication.Status, &singleApplication.Applied_at, &singleApplication.Notes, &singleApplication.Created_at, &singleApplication.Updated_at)
 
 	if err != nil {
-		return models.Application{}, err
+		return models.Application{}, appErrors.ErrApplicationNotFound
 	}
 	return singleApplication, nil
 

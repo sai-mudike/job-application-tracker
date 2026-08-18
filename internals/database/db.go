@@ -58,7 +58,8 @@ applied_at TIMESTAMP WITH TIME ZONE,
 notes TEXT,
 created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
 updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-CHECK(salary_min IS NULL OR salary_max IS NULL OR salary_max >= salary_min)
+CHECK(salary_min IS NULL OR salary_max IS NULL OR salary_max >= salary_min),
+UNIQUE(user_id,job_url)
 );
 `
 	_, err = DB.Exec(createApplicationsTable)

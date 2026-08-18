@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	appErrors "github.com/sai-mudike/job-application-tracker/internals/errors"
 )
 
 var secretKeys = "supersecret"
@@ -37,13 +38,13 @@ func VerifyToken(token string) (int64, error) {
 	isTokenValid := parsedToken.Valid
 
 	if !isTokenValid {
-		return 0, errors.New("Token is not vaild")
+		return 0, appErrors.ErrInvalidToken
 	}
 
 	data, ok := parsedToken.Claims.(jwt.MapClaims)
 
 	if !ok {
-		return 0, errors.New("Invalid map claims")
+		return 0, appErrors.ErrTokenExpired
 	}
 
 	userID := data["id"].(float64)

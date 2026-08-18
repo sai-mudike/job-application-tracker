@@ -2,12 +2,16 @@ package repositories
 
 import (
 	"errors"
-	"fmt"
+
+	"github.com/lib/pq"
 
 	"github.com/sai-mudike/job-application-tracker/internals/database"
+	appErrors "github.com/sai-mudike/job-application-tracker/internals/errors"
 	"github.com/sai-mudike/job-application-tracker/internals/models"
 	"github.com/sai-mudike/job-application-tracker/internals/services"
 )
+
+var pqErr *pq.Error
 
 func CreateUser(user *models.User) error {
 	query := `
@@ -29,6 +33,11 @@ func CreateUser(user *models.User) error {
 	row := smt.QueryRow(user.UserName, hashedPassword)
 
 	err = row.Scan(&user.Id)
+	if errors.As(err, &pqErr) {
+		if pqErr.Code == "23505" {
+			return appErrors.ErrEmailAlreadyExists
+		}
+	}
 	return err
 }
 
@@ -42,14 +51,13 @@ func VerifyUser(user *models.User) error {
 
 	err := row.Scan(&user.Id, &hashed_pass)
 	if err != nil {
-		fmt.Println(err)
-		return errors.New("Invalid credentials Please enter valid email id")
+		return appErrors.ErrUserNotFound
 	}
 
 	isPassValid := services.CheckPassword(user.Password, hashed_pass)
 
 	if !isPassValid {
-		return errors.New("Invalid credentials Please check password")
+		return appErrors.ErrInvalidCredentials
 	}
 
 	return nil

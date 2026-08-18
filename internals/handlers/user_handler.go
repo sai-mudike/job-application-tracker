@@ -20,11 +20,12 @@ func RegisterUser(context *gin.Context) {
 	}
 
 	err = repositories.CreateUser(&user)
+
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "could not create the user"})
-		return
+		HandleError(context, err)
 	}
-	context.JSON(http.StatusOK, gin.H{"message": "user created successfully"})
+
+	context.JSON(http.StatusCreated, gin.H{"message": "user created successfully"})
 
 }
 
@@ -32,24 +33,24 @@ func UserLogin(context *gin.Context) {
 	var user models.User
 	err := context.ShouldBindJSON(&user)
 	if err != nil {
-		fmt.Println(err)
-		context.JSON(http.StatusBadRequest, gin.H{"message": "could not parse the user data provided"})
+		context.JSON(http.StatusBadRequest, models.NewErrorResponse("INVALID_REQUEST", "Invalid request"))
+
 		return
 	}
-
 	err = repositories.VerifyUser(&user)
 
 	if err != nil {
-		context.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
+		HandleError(context, err)
 		return
 	}
 
 	token, err := services.GenerateToken(user.UserName, user.Id)
 
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "failed to create user token"})
+		HandleError(context, err)
+		return
 	}
 
-	context.JSON(http.StatusAccepted, gin.H{"message": "user succefully loged in", "token": token})
+	context.JSON(http.StatusCreated, gin.H{"message": "user succefully loged in", "token": token})
 
 }
