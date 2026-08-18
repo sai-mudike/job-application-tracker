@@ -8,6 +8,9 @@ var (
 	ErrInvalidApplicationData = errors.New("invalid application data")
 	ErrInvalidSalaryRange     = errors.New("invalid salary range")
 	ErrInvalidStatus          = errors.New("invalid application status")
+	ErrInvalidJob_url         = errors.New("invalid job url")
+	ErrInvalidEmployment_type = errors.New("invalid employment type")
+	ErrInvalidApplied_at      = errors.New("invalid Applied at")
 
 	// 401 Unauthorized
 	ErrMissingToken       = errors.New("missing token")

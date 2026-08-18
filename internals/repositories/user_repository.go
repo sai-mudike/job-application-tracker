@@ -63,3 +63,21 @@ func VerifyUser(user *models.User) error {
 	return nil
 
 }
+
+func UserExists(userID int64) (bool, error) {
+	var exists bool
+
+	err := database.DB.QueryRow(`
+		SELECT EXISTS(
+			SELECT 1
+			FROM users
+			WHERE id = $1
+		)
+	`, userID).Scan(&exists)
+
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
+}

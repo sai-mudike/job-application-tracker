@@ -19,7 +19,7 @@ func HandleError(c *gin.Context, err error) {
 	case errors.Is(err, appErrors.ErrInvalidRequest):
 		c.JSON(http.StatusBadRequest, models.ErrorResponse{
 			Code:    "INVALID_REQUEST",
-			Message: "Invalid request",
+			Message: fmt.Sprintf("Invalid request %v", err.Error()),
 		})
 
 	case errors.Is(err, appErrors.ErrInvalidApplicationData):
@@ -39,6 +39,21 @@ func HandleError(c *gin.Context, err error) {
 			Code:    "INVALID_STATUS",
 			Message: "Invalid application status",
 		})
+
+	case errors.Is(err, appErrors.ErrInvalidJob_url):
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Code:    "INVALID_JOB_URL",
+			Message: "Invalid Job url "})
+
+	case errors.Is(err, appErrors.ErrInvalidEmployment_type):
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Code:    "INVALID_EMPLOYMNET_TYPE",
+			Message: "Invalid employment type"})
+
+	case errors.Is(err, appErrors.ErrInvalidApplied_at):
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Code:    "INVALID_APPLIED_AT",
+			Message: "Applied at Cannot be after the apllication creating data"})
 
 	// 401 Unauthorized
 	case errors.Is(err, appErrors.ErrMissingToken):
@@ -102,7 +117,7 @@ func HandleError(c *gin.Context, err error) {
 	default:
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
 			Code:    "INTERNAL_SERVER_ERROR",
-			Message: fmt.Sprintf("An unexpected error occurred %v", err),
+			Message: fmt.Sprintf("An unexpected error occurred %v", err.Error()),
 		})
 	}
 }

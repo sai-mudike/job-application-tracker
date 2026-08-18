@@ -28,6 +28,9 @@ RETURNING id;
 		if pqErr.Code == "23505" {
 			return appErrors.ErrDuplicateApplication
 		}
+		if pqErr.Code == "23514" {
+			return appErrors.ErrInvalidSalaryRange
+		}
 	}
 	return err
 }

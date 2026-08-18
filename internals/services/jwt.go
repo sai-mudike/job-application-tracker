@@ -1,7 +1,6 @@
 package services
 
 import (
-	"errors"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -27,7 +26,7 @@ func VerifyToken(token string) (int64, error) {
 		_, ok := token.Method.(*jwt.SigningMethodHMAC)
 
 		if !ok {
-			return nil, errors.New("Unexpected signing method")
+			return nil, appErrors.ErrInvalidToken
 		}
 		return []byte(secretKeys), nil
 	})
@@ -48,6 +47,10 @@ func VerifyToken(token string) (int64, error) {
 	}
 
 	userID := data["id"].(float64)
+
+	if userID == 0 {
+		return 0, appErrors.ErrInvalidToken
+	}
 
 	return int64(userID), nil
 }

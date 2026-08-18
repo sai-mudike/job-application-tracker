@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sai-mudike/job-application-tracker/internals/handlers/validators"
 	"github.com/sai-mudike/job-application-tracker/internals/models"
 	"github.com/sai-mudike/job-application-tracker/internals/repositories"
 )
@@ -18,6 +19,12 @@ func CreateApplication(context *gin.Context) {
 
 	if err != nil {
 		context.JSON(http.StatusBadRequest, models.NewErrorResponse("INVALID_REQUEST", "Invalid request"))
+		return
+	}
+
+	err = validators.ValidateCreateApplication(application)
+	if err != nil {
+		HandleError(context, err)
 		return
 	}
 
@@ -62,14 +69,14 @@ func GetApplicationByID(context *gin.Context) {
 }
 
 func UpdateApplication(context *gin.Context) {
-	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
+	ApplicationID, err := strconv.ParseInt(context.Param("id"), 10, 64)
 	userID := context.GetInt64("userID")
 
 	if err != nil {
 		context.JSON(http.StatusBadRequest, models.NewErrorResponse("INVALID_REQUEST", "Invalid request"))
 		return
 	}
-	applicationFromDB, err := repositories.GetApplicationByID(id, userID)
+	_, err = repositories.GetApplicationByID(ApplicationID, userID)
 	if err != nil {
 		HandleError(context, err)
 		return
@@ -82,9 +89,14 @@ func UpdateApplication(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, models.NewErrorResponse("INVALID_REQUEST", "Invalid request"))
 		return
 	}
+	err = validators.ValidateCreateApplication(Updatedapplication)
+	if err != nil {
+		HandleError(context, err)
+		return
+	}
 
-	Updatedapplication.Id = applicationFromDB.Id
-	err = repositories.UpdateApplication(Updatedapplication, id)
+	Updatedapplication.Id = ApplicationID
+	err = repositories.UpdateApplication(Updatedapplication, ApplicationID)
 	if err != nil {
 		HandleError(context, err)
 		return
