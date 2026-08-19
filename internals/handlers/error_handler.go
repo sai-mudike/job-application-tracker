@@ -67,6 +67,16 @@ func HandleError(c *gin.Context, err error) {
 			Code:    "INVALID_SORTING",
 			Message: "invalid sorting data"})
 
+	case errors.Is(err, appErrors.ErrInvalidResumeData):
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Code:    "INVALID_RESUME_DATA",
+			Message: "invalid resume data"})
+
+	case errors.Is(err, appErrors.ErrInvalidResumeFile_path):
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Code:    "INVALID_RESUME_FILE_PATH",
+			Message: "invalid resume file path"})
+
 	// 401 Unauthorized
 	case errors.Is(err, appErrors.ErrMissingToken):
 		c.AbortWithStatusJSON(http.StatusUnauthorized, models.ErrorResponse{
@@ -111,6 +121,11 @@ func HandleError(c *gin.Context, err error) {
 			Code:    "APPLICATION_NOT_FOUND",
 			Message: "Application not found",
 		})
+	case errors.Is(err, appErrors.ErrResumeNotFound):
+		c.JSON(http.StatusNotFound, models.ErrorResponse{
+			Code:    "RESUME_NOT_FOUND",
+			Message: "resume not found",
+		})
 
 	// 409 Conflict
 	case errors.Is(err, appErrors.ErrEmailAlreadyExists):
@@ -123,6 +138,11 @@ func HandleError(c *gin.Context, err error) {
 		c.JSON(http.StatusConflict, models.ErrorResponse{
 			Code:    "DUPLICATE_APPLICATION",
 			Message: "You already have this application tracked",
+		})
+	case errors.Is(err, appErrors.ErrResumeAlreadyExists):
+		c.JSON(http.StatusConflict, models.ErrorResponse{
+			Code:    "RESUME_ALREADY_EXISTS",
+			Message: "An account with this resume already exists",
 		})
 
 	// 500 Internal Server Error

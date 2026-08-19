@@ -25,11 +25,11 @@ RETURNING id;
 	row := smt.QueryRow(application.User_id, application.Company_name, application.Job_title, application.Job_url, application.Location, application.Employment_type, application.Salary_min, application.Salary_max, application.Status, application.Applied_at, application.Notes)
 
 	err = row.Scan(&application.Id)
-	if errors.As(err, &pqErr) {
-		if pqErr.Code == "23505" {
+	if errors.As(err, &appErrors.PQErr) {
+		if appErrors.PQErr.Code == "23505" {
 			return appErrors.ErrDuplicateApplication
 		}
-		if pqErr.Code == "23514" {
+		if appErrors.PQErr.Code == "23514" {
 			return appErrors.ErrInvalidSalaryRange
 		}
 	}
@@ -68,7 +68,7 @@ func GetAllApplications(user_id int64, queryList models.ApplicationQuery) ([]mod
 	rows, err := database.DB.Query(query, args...)
 
 	if err != nil {
-		return nil, appErrors.ErrApplicationNotFound
+		return nil, err
 	}
 
 	defer rows.Close()

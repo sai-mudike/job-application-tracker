@@ -3,15 +3,11 @@ package repositories
 import (
 	"errors"
 
-	"github.com/lib/pq"
-
 	"github.com/sai-mudike/job-application-tracker/internals/database"
 	appErrors "github.com/sai-mudike/job-application-tracker/internals/errors"
 	"github.com/sai-mudike/job-application-tracker/internals/models"
 	"github.com/sai-mudike/job-application-tracker/internals/services"
 )
-
-var pqErr *pq.Error
 
 func CreateUser(user *models.User) error {
 	query := `
@@ -33,8 +29,8 @@ func CreateUser(user *models.User) error {
 	row := smt.QueryRow(user.UserName, hashedPassword)
 
 	err = row.Scan(&user.Id)
-	if errors.As(err, &pqErr) {
-		if pqErr.Code == "23505" {
+	if errors.As(err, &appErrors.PQErr) {
+		if appErrors.PQErr.Code == "23505" {
 			return appErrors.ErrEmailAlreadyExists
 		}
 	}

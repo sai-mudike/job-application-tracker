@@ -1,6 +1,12 @@
 package errors
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/lib/pq"
+)
+
+var PQErr *pq.Error
 
 var (
 	// 400 Bad Request
@@ -14,6 +20,8 @@ var (
 	ErrInvalidPagination      = errors.New("invalid page number")
 	ErrInvalidSort            = errors.New("invalid sorting value")
 	ErrInvalidSortOrder       = errors.New("invalid sorting order")
+	ErrInvalidResumeData      = errors.New("invalid Resume data")
+	ErrInvalidResumeFile_path = errors.New("invalid resume file path")
 
 	// 401 Unauthorized
 	ErrMissingToken       = errors.New("missing token")
@@ -27,10 +35,12 @@ var (
 	// 404 Not Found
 	ErrUserNotFound        = errors.New("user not found")
 	ErrApplicationNotFound = errors.New("application not found")
+	ErrResumeNotFound      = errors.New("Resume not found")
 
 	// 409 Conflict
 	ErrEmailAlreadyExists   = errors.New("email already exists")
 	ErrDuplicateApplication = errors.New("application already exists")
+	ErrResumeAlreadyExists  = errors.New("resume already exists")
 
 	// 500 Internal Server Error
 	ErrInternal = errors.New("internal server error")

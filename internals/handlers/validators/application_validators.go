@@ -9,7 +9,7 @@ import (
 	"github.com/sai-mudike/job-application-tracker/internals/models"
 )
 
-func ValidateCreateApplication(req models.Application) error {
+func ValidateCreateApplication(req *models.Application) error {
 
 	// Trim strings
 	req.Company_name = strings.TrimSpace(req.Company_name)
@@ -25,7 +25,7 @@ func ValidateCreateApplication(req models.Application) error {
 		return appErrors.ErrInvalidApplicationData
 	}
 
-	if len(req.Company_name) > 100 {
+	if len(req.Company_name) > 255 {
 		return appErrors.ErrInvalidApplicationData
 	}
 
@@ -34,7 +34,7 @@ func ValidateCreateApplication(req models.Application) error {
 		return appErrors.ErrInvalidApplicationData
 	}
 
-	if len(req.Job_title) > 150 {
+	if len(req.Job_title) > 255 {
 		return appErrors.ErrInvalidApplicationData
 	}
 
@@ -57,7 +57,7 @@ func ValidateCreateApplication(req models.Application) error {
 		return appErrors.ErrInvalidApplicationData
 	}
 
-	if len(req.Location) > 100 {
+	if len(req.Location) > 255 {
 		return appErrors.ErrInvalidApplicationData
 	}
 

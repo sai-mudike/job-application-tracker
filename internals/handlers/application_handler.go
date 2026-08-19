@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	appErrors "github.com/sai-mudike/job-application-tracker/internals/errors"
 	"github.com/sai-mudike/job-application-tracker/internals/handlers/validators"
 	"github.com/sai-mudike/job-application-tracker/internals/models"
 	"github.com/sai-mudike/job-application-tracker/internals/repositories"
@@ -19,11 +20,12 @@ func CreateApplication(context *gin.Context) {
 	err := context.ShouldBindJSON(&application)
 
 	if err != nil {
-		context.JSON(http.StatusBadRequest, models.NewErrorResponse("INVALID_REQUEST", "Invalid request"))
+		HandleError(context, appErrors.ErrInvalidRequest)
+
 		return
 	}
 
-	err = validators.ValidateCreateApplication(application)
+	err = validators.ValidateCreateApplication(&application)
 	if err != nil {
 		HandleError(context, err)
 		return
@@ -74,7 +76,7 @@ func GetApplicationByID(context *gin.Context) {
 	userID := context.GetInt64("userID")
 
 	if err != nil {
-		context.JSON(http.StatusBadRequest, models.NewErrorResponse("INVALID_REQUEST", "Invalid request"))
+		HandleError(context, appErrors.ErrInvalidRequest)
 		return
 	}
 	application, err := repositories.GetApplicationByID(id, userID)
@@ -90,7 +92,8 @@ func UpdateApplication(context *gin.Context) {
 	userID := context.GetInt64("userID")
 
 	if err != nil {
-		context.JSON(http.StatusBadRequest, models.NewErrorResponse("INVALID_REQUEST", "Invalid request"))
+		HandleError(context, appErrors.ErrInvalidRequest)
+
 		return
 	}
 	_, err = repositories.GetApplicationByID(ApplicationID, userID)
@@ -103,10 +106,11 @@ func UpdateApplication(context *gin.Context) {
 	err = context.ShouldBindJSON(&Updatedapplication)
 
 	if err != nil {
-		context.JSON(http.StatusBadRequest, models.NewErrorResponse("INVALID_REQUEST", "Invalid request"))
+		HandleError(context, appErrors.ErrInvalidRequest)
+
 		return
 	}
-	err = validators.ValidateCreateApplication(Updatedapplication)
+	err = validators.ValidateCreateApplication(&Updatedapplication)
 	if err != nil {
 		HandleError(context, err)
 		return
@@ -127,7 +131,8 @@ func DeleteApplication(context *gin.Context) {
 	userID := context.GetInt64("userID")
 
 	if err != nil {
-		context.JSON(http.StatusBadRequest, models.NewErrorResponse("INVALID_REQUEST", "Invalid request"))
+		HandleError(context, appErrors.ErrInvalidRequest)
+
 		return
 	}
 	_, err = repositories.GetApplicationByID(id, userID)

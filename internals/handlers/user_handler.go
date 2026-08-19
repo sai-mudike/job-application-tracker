@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -14,7 +13,6 @@ func RegisterUser(context *gin.Context) {
 	var user models.User
 	err := context.ShouldBindJSON(&user)
 	if err != nil {
-		fmt.Println(err)
 		context.JSON(http.StatusBadRequest, gin.H{"message": "could not parse the user data provided"})
 		return
 	}
@@ -23,6 +21,7 @@ func RegisterUser(context *gin.Context) {
 
 	if err != nil {
 		HandleError(context, err)
+		return
 	}
 
 	context.JSON(http.StatusCreated, gin.H{"message": "user created successfully"})

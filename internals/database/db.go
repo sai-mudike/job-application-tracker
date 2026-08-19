@@ -59,7 +59,22 @@ notes TEXT,
 created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
 updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
 CHECK(salary_min IS NULL OR salary_max IS NULL OR salary_max >= salary_min),
-UNIQUE(user_id,job_url)
+UNIQUE(user_id,job_url),
+CHECK (status IN (
+    'applied',
+    'interview',
+    'offer',
+    'rejected',
+    'withdrawn',
+    'accepted'
+)),
+CHECK (employment_type IN(
+'full_time',
+    'part_time',
+    'contract',
+    'internship',
+    'temporary'
+	))
 );
 `
 	_, err = DB.Exec(createApplicationsTable)
@@ -68,4 +83,19 @@ UNIQUE(user_id,job_url)
 		panic("could not create the applications table")
 	}
 
+	createResumeTable := `
+CREATE TABLE IF NOT EXISTS resumes(
+id SERIAL PRIMARY KEY,
+user_id INTEGER REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+name VARCHAR(255) NOT NULL,
+file_path TEXT NOT NULL,
+created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+UNIQUE(user_id,file_path)
+);
+`
+	_, err = DB.Exec(createResumeTable)
+
+	if err != nil {
+		panic("could not create resumes table")
+	}
 }
