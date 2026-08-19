@@ -54,6 +54,18 @@ func HandleError(c *gin.Context, err error) {
 		c.JSON(http.StatusBadRequest, models.ErrorResponse{
 			Code:    "INVALID_APPLIED_AT",
 			Message: "Applied at Cannot be after the apllication creating data"})
+	case errors.Is(err, appErrors.ErrInvalidPagination):
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Code:    "INVALID_PAGINATION",
+			Message: "Valid page number is required"})
+	case errors.Is(err, appErrors.ErrInvalidSortOrder):
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Code:    "INVALID_SORTING_ORDER",
+			Message: "sorting can be either 'asc' or 'desc'"})
+	case errors.Is(err, appErrors.ErrInvalidSort):
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Code:    "INVALID_SORTING",
+			Message: "invalid sorting data"})
 
 	// 401 Unauthorized
 	case errors.Is(err, appErrors.ErrMissingToken):
@@ -119,5 +131,6 @@ func HandleError(c *gin.Context, err error) {
 			Code:    "INTERNAL_SERVER_ERROR",
 			Message: fmt.Sprintf("An unexpected error occurred %v", err.Error()),
 		})
+		return
 	}
 }

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -42,7 +43,23 @@ func CreateApplication(context *gin.Context) {
 func GetApplications(context *gin.Context) {
 	userID := context.GetInt64("userID")
 
-	applications, err := repositories.GetAllApplications(userID)
+	query := models.ApplicationQuery{
+		Page:           1,
+		Limit:          10,
+		Status:         context.DefaultQuery("status", ""),
+		EmploymentType: context.DefaultQuery("employment_type", ""),
+		SortBy:         context.DefaultQuery("sort", "created_at"),
+		OrderBy:        context.DefaultQuery("order", "desc"),
+	}
+
+	err := validators.ApplQueryVali(context, &query, HandleError)
+	if err != nil {
+		fmt.Println(err)
+		HandleError(context, err)
+		return
+	}
+
+	applications, err := repositories.GetAllApplications(userID, query)
 	if err != nil {
 		HandleError(context, err)
 		return

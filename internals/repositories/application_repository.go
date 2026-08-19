@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/sai-mudike/job-application-tracker/internals/database"
 	appErrors "github.com/sai-mudike/job-application-tracker/internals/errors"
@@ -35,11 +36,36 @@ RETURNING id;
 	return err
 }
 
-func GetAllApplications(user_id int64) ([]models.Application, error) {
+func GetAllApplications(user_id int64, queryList models.ApplicationQuery) ([]models.Application, error) {
 	query := `
-	SELECT * FROM applications WHERE applications.user_id=$1;
+	SELECT * FROM applications WHERE applications.user_id=$1
 	`
-	rows, err := database.DB.Query(query, user_id)
+	args := []any{user_id}
+	argsCount := 2
+
+	if queryList.Status != "" {
+		query += fmt.Sprintf(" AND status=$%d", argsCount)
+		args = append(args, queryList.Status)
+		argsCount++
+	}
+
+	if queryList.EmploymentType != "" {
+		query += fmt.Sprintf(" AND employment_type=$%d", argsCount)
+		args = append(args, queryList.EmploymentType)
+		argsCount++
+	}
+	if queryList.OrderBy != "" {
+		query += fmt.Sprintf(" ORDER BY %s %s", queryList.SortBy, queryList.OrderBy)
+	}
+
+	if queryList.Page >= 1 {
+		offset := (queryList.Page - 1) * queryList.Limit
+		query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", argsCount, argsCount+1)
+		args = append(args, queryList.Limit, offset)
+
+	}
+	fmt.Println(query)
+	rows, err := database.DB.Query(query, args...)
 
 	if err != nil {
 		return nil, appErrors.ErrApplicationNotFound

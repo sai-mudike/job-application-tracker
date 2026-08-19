@@ -11,6 +11,9 @@ var (
 	ErrInvalidJob_url         = errors.New("invalid job url")
 	ErrInvalidEmployment_type = errors.New("invalid employment type")
 	ErrInvalidApplied_at      = errors.New("invalid Applied at")
+	ErrInvalidPagination      = errors.New("invalid page number")
+	ErrInvalidSort            = errors.New("invalid sorting value")
+	ErrInvalidSortOrder       = errors.New("invalid sorting order")
 
 	// 401 Unauthorized
 	ErrMissingToken       = errors.New("missing token")
